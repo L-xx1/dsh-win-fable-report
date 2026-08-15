@@ -20,15 +20,52 @@
 
 ## 怎么安装
 
-1. 下载 [win-fable-report-v0.1.0.zip](release/win-fable-report-v0.1.0.zip)；
-2. 解压后，在目录里运行：
+### 路径对照（先看清这两层目录）
+
+| 路径 | 含义 |
+| --- | --- |
+| `C:\dev\dsh-win-fable-report` | 你克隆项目的地方，位置随意 |
+| `C:\dev\dsh-win-fable-report\win-fable-report` | 源：项目里的 preset 目录 |
+| `C:\Users\<你>\.dsh` | dsh 自己的数据目录 |
+| `C:\Users\<你>\.dsh\.agent-presets` | dsh 查找用户 preset 的目录 |
+| `C:\Users\<你>\.dsh\.agent-presets\win-fable-report` | 目标：安装后的 preset |
+
+`.dsh` 和项目克隆目录没有父子关系，可以放在不同磁盘。它们的唯一联系，就是下面这条复制命令：
+
+```text
+项目里的 win-fable-report  ──复制──>  .dsh\.agent-presets\win-fable-report
+```
+
+不要反过来，也不要把项目克隆到 `.dsh` 里面。
+
+### 推荐：Git 克隆 + 一条命令安装
 
 ```powershell
+git clone https://github.com/L-xx1/dsh-win-fable-report.git
+cd dsh-win-fable-report
 powershell -ExecutionPolicy Bypass -File .\install.ps1
 ```
 
-3. 完全重启 dsh；
-4. 新建一个空白会话，选择 **Fable级且及时总结模式**。
+`install.ps1` 会自动完成上面这个复制动作。
+
+### 不想执行脚本：直接复制
+
+```powershell
+git clone https://github.com/L-xx1/dsh-win-fable-report.git
+cd dsh-win-fable-report
+
+$dshHome = if ($env:DSH_HOME) { $env:DSH_HOME } else { Join-Path $env:USERPROFILE '.dsh' }
+$dst     = Join-Path (Join-Path $dshHome '.agent-presets') 'win-fable-report'
+
+Copy-Item -Recurse -LiteralPath '.\win-fable-report' -Destination $dst
+Test-Path (Join-Path $dst 'agent.cordis.yml')   # 应返回 True
+```
+
+### 安装后加载
+
+1. 完全重启 dsh；命令行启动可执行 `dsh web`（等于 `dsh --profile web`）；
+2. 新建一个空白会话；
+3. 选择 **Fable级且及时总结模式**。
 
 > 安装脚本默认不覆盖已有文件；确需覆盖时加 `-Force`。
 > 不要在已有对话的会话上切换本模式。

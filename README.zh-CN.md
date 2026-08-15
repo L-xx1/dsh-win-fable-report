@@ -53,7 +53,60 @@ DeepSeek V4 Pro 会强烈依赖 API 中第一眼看到的工具目录来选择�
 
 ## 安装
 
-### 方式一：Release zip + install.ps1（推荐）
+### 路径对照：`.dsh` 与项目克隆路径的关系
+
+| 路径 | 含义 |
+| --- | --- |
+| `C:\dev\dsh-win-fable-report` | 项目克隆目录，位置可任意选择 |
+| `C:\dev\dsh-win-fable-report\win-fable-report` | 源目录：项目内真正的 preset 目录 |
+| `C:\Users\<你>\.dsh` | dsh 数据目录（`DSH_HOME`，默认在用户主目录） |
+| `C:\Users\<你>\.dsh\.agent-presets` | dsh 扫描用户 preset 的根目录 |
+| `C:\Users\<你>\.dsh\.agent-presets\win-fable-report` | 目标目录：安装后的 preset |
+
+两点最重要：
+
+1. 这两个目录**没有父子关系**：`.dsh` 在用户主目录下，项目 clone 在你选的位置，二者可以在不同磁盘；
+2. 唯一联系是一次复制，方向固定：
+
+```text
+<项目克隆目录>\win-fable-report  ──复制──>  <DSH_HOME>\.agent-presets\win-fable-report
+```
+
+所以安装命令的本质就是“源目录 → 目标目录”的 `Copy-Item`。不要把项目 clone 到 `.dsh` 内，也不要反向复制。
+
+### 方式一：Git 克隆 + install.ps1（推荐，最简）
+
+```powershell
+git clone https://github.com/L-xx1/dsh-win-fable-report.git
+cd dsh-win-fable-report
+powershell -ExecutionPolicy Bypass -File .\install.ps1
+```
+
+`install.ps1` 内部就是按上表计算 `$Destination` 后执行复制。已安装时默认拒绝覆盖；加 `-Force` 覆盖：
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\install.ps1 -Force
+```
+
+### 方式二：Git 克隆 + PowerShell 手动复制（想看清路径时）
+
+```powershell
+git clone https://github.com/L-xx1/dsh-win-fable-report.git
+cd dsh-win-fable-report
+
+$dshHome = if ($env:DSH_HOME) { $env:DSH_HOME } else { Join-Path $env:USERPROFILE '.dsh' }
+$root    = Join-Path $dshHome '.agent-presets'
+$dst     = Join-Path $root 'win-fable-report'
+$src     = Join-Path (Get-Location) 'win-fable-report'
+
+if (Test-Path -LiteralPath $dst) { throw "Preset already exists: $dst" }
+New-Item -ItemType Directory -Force -Path $root | Out-Null
+Copy-Item -Recurse -LiteralPath $src -Destination $dst
+
+Test-Path (Join-Path $dst 'agent.cordis.yml')  # 应返回 True
+```
+
+### 方式三：Release zip + install.ps1
 
 1. 下载 `win-fable-report-vX.Y.Z.zip`；
 2. 解压；
@@ -63,26 +116,25 @@ DeepSeek V4 Pro 会强烈依赖 API 中第一眼看到的工具目录来选择�
 powershell -ExecutionPolicy Bypass -File .\install.ps1
 ```
 
-已安装时脚本默认拒绝覆盖；需要覆盖时加 `-Force`：
+### 安装后加载
+
+1. **完全重启 dsh**。命令行启动可执行：
 
 ```powershell
-powershell -ExecutionPolicy Bypass -File .\install.ps1 -Force
+dsh web
 ```
 
-4. **完全重启 dsh**；
-5. 新建空白会话，选择 **Fable级且及时总结模式**。
+`dsh web` 等价于 `dsh --profile web`。
 
-### 方式二：手动复制 preset 目录
+2. 新建一个空白会话；
+3. 在 preset 选择器中选择 **Fable级且及时总结模式**；
+4. 不要在已有内容的会话上切换 preset。
+
+可先用一行命令确认文件已经就位：
 
 ```powershell
 $dshHome = if ($env:DSH_HOME) { $env:DSH_HOME } else { Join-Path $env:USERPROFILE '.dsh' }
-$root    = Join-Path $dshHome '.agent-presets'
-$dst     = Join-Path $root 'win-fable-report'
-$src     = 'C:\path\to\dsh-win-fable-report\win-fable-report'
-
-if (Test-Path -LiteralPath $dst) { throw "Preset already exists: $dst" }
-New-Item -ItemType Directory -Force -Path $root | Out-Null
-Copy-Item -Recurse -LiteralPath $src -Destination $dst
+Test-Path (Join-Path (Join-Path $dshHome '.agent-presets') 'win-fable-report\agent.cordis.yml')
 ```
 
 ## 适配环境

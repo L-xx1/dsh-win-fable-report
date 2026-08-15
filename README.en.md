@@ -32,15 +32,53 @@ playbook that targets recurring Windows dsh failures:
 
 ## Install
 
-Download a release zip, extract it, then run:
+### Path map: the clone directory vs `.dsh`
+
+| Path | Meaning |
+| --- | --- |
+| `C:\dev\dsh-win-fable-report` | Where you clone the project (any location) |
+| `C:\dev\dsh-win-fable-report\win-fable-report` | Source: the preset directory inside the project |
+| `C:\Users\<you>\.dsh` | dsh data directory (`DSH_HOME`, under your user profile) |
+| `C:\Users\<you>\.dsh\.agent-presets` | Root where dsh discovers user presets |
+| `C:\Users\<you>\.dsh\.agent-presets\win-fable-report` | Destination: the installed preset |
+
+The clone directory and `.dsh` are unrelated; they can live on different drives. The only connection is one copy, in this fixed direction:
+
+```text
+<clone>\win-fable-report  ──copy──>  <DSH_HOME>\.agent-presets\win-fable-report
+```
+
+Do not clone the project inside `.dsh`, and do not copy in the opposite direction.
+
+### Option 1: git clone + install.ps1 (recommended, shortest)
 
 ```powershell
+git clone https://github.com/L-xx1/dsh-win-fable-report.git
+cd dsh-win-fable-report
 powershell -ExecutionPolicy Bypass -File .\install.ps1
 ```
 
-Use `-Force` to overwrite an existing install. Fully restart dsh, create a blank session, and select **Fable级且及时总结模式**.
+`install.ps1` performs exactly that copy. Use `-Force` to overwrite an existing install.
 
-Manual install: copy the `win-fable-report/` directory into `<DSH_HOME>\.agent-presets\win-fable-report`.
+### Option 2: git clone + direct PowerShell copy
+
+```powershell
+git clone https://github.com/L-xx1/dsh-win-fable-report.git
+cd dsh-win-fable-report
+
+$dshHome = if ($env:DSH_HOME) { $env:DSH_HOME } else { Join-Path $env:USERPROFILE '.dsh' }
+$dst     = Join-Path (Join-Path $dshHome '.agent-presets') 'win-fable-report'
+
+Copy-Item -Recurse -LiteralPath '.\win-fable-report' -Destination $dst
+Test-Path (Join-Path $dst 'agent.cordis.yml')   # should return True
+```
+
+### Load the preset after install
+
+1. Fully restart dsh. From the command line you can start it with `dsh web` (same as `dsh --profile web`).
+2. Create a blank session.
+3. Select **Fable级且及时总结模式**.
+4. Do not switch an active session to this preset.
 
 ## Compatibility
 
