@@ -2,3 +2,6 @@ node_modules/
 *.zip
 *.log
 .DS_Store
+
+# Keep the ready-to-download release package in the repository
+!release/*.zip
