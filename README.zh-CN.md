@@ -1,4 +1,6 @@
-# dsh-win-fable-report
+# dsh-win-fable-report（详细说明）
+
+> 快速上手请看 [README.md](README.md)。本文是详细版。
 
 **Fable级且及时总结模式**（preset id：`win-fable-report`）——基于
 [dsh-anchored-standard](https://github.com/xiaobright/dsh-anchored-standard)

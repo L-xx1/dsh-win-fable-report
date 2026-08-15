@@ -1,62 +1,53 @@
 # dsh-win-fable-report
 
-**Fable-Level, Just-in-Time Summary Mode** (preset id: `win-fable-report`) —
-a Windows tool-calling enhancement preset derived from
-[dsh-anchored-standard](https://github.com/xiaobright/dsh-anchored-standard).
+**Fable级且及时总结模式**（安装目录名：`win-fable-report`）
 
-> Community project. Not an official DeepSeek preset and not affiliated with or endorsed by DeepSeek.
+这是一个给 Windows 版 DeepSeek Harness（dsh）用的预设模式。它让 DeepSeek V4 Pro 先用更稳的方式开始工作，并且在重要节点用一句通俗的中文向用户汇报进展。
 
-## What problem it solves
+## 它解决什么问题
 
-`dsh-anchored-standard` shows that bootstrapping the first request with the
-official Minimal tool pair (`bash` + `str_replace_editor`) anchors a better
-V4 Pro reasoning trajectory, then unlocks more capabilities after promotion.
+- 模型一上来看到太多工具，容易绕远路、说空话；
+- Windows 上路径和编辑器工具容易用错，改了不验证，同一条失败命令反复执行；
+- 前端任务里模型没有视觉能力，却反复截图“看效果”，浪费 token；
+- 关键进展用户看不到，问题不能及时纠正。
 
-This derivative keeps that anchor and adds a post-promotion Windows tool-calling
-playbook that targets recurring Windows dsh failures:
+## 它怎么工作
 
-- mixing Git Bash / Windows-native / editor path systems;
-- passing `/tmp` paths to Windows-native `node`, `python`, or `chrome`;
-- retrying `str_replace_editor` replacements without byte-exact `old_str`;
-- skipping `node --check` / tests after edits;
-- repeating the same failing command instead of changing approach;
-- wasting tokens trying to "view" frontend output when no vision skill is loaded;
-- not reporting important omissions, turning points, breakthroughs, or key progress nodes to the user.
+1. 第一轮只给模型两个基础工具：`bash` 和 `str_replace_editor`，让它沿正确轨迹启动；
+2. 模型真正开始动手，或给出第一次回答后，开放常驻小工具；重型工具按需解锁；
+3. 随后注入一份《Windows 工具使用守则》，告诉模型路径怎么写、改完怎么验证、什么时候不要截图；
+4. 模型遇到重要遗漏、思路转折、突破或关键节点时，先用简洁的中文向用户汇报，再继续干活。
 
-## How it works
+## 怎么安装
 
-1. First request stays Minimal-exact: Minimal persona, `bash` + `str_replace_editor`, no injected workspace/skill/playbook context.
-2. The first durable `tool/call` or `assistant/message` promotes the session (epoch-aware, resume-safe).
-3. Promoted catalog stays small: `bash`, `str_replace_editor`, `dev_tool_search`, `skill_search`, `skill_load`; heavier tools are unlocked on demand.
-4. After promotion, the full Windows dsh playbook is injected once per session per compaction epoch. It is never compressed or truncated.
-
-## Install
-
-Download a release zip, extract it, then run:
+1. 下载 [win-fable-report-v0.1.0.zip](release/win-fable-report-v0.1.0.zip)；
+2. 解压后，在目录里运行：
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File .\install.ps1
 ```
 
-Use `-Force` to overwrite an existing install. Fully restart dsh, create a blank session, and select **Fable级且及时总结模式**.
+3. 完全重启 dsh；
+4. 新建一个空白会话，选择 **Fable级且及时总结模式**。
 
-Manual install: copy the `win-fable-report/` directory into `<DSH_HOME>\.agent-presets\win-fable-report`.
+> 安装脚本默认不覆盖已有文件；确需覆盖时加 `-Force`。
+> 不要在已有对话的会话上切换本模式。
 
-## Compatibility
+## 使用环境
 
-- DeepSeek Harness `0.1.0-rc.5` (upstream target) and `0.1.0-rc.6` (locally verified);
-- Windows, Node.js 22.x, Git for Windows;
-- review upstream `standard` / `minimal` changes before upgrading Harness.
+- Windows；
+- DeepSeek Harness `0.1.0-rc.5` / `0.1.0-rc.6`；
+- Node.js 22.x；
+- Git for Windows。
 
-## Playbook
+## 详细说明
 
-See [README.zh-CN.md](README.zh-CN.md) for the full Chinese playbook text and detailed verification steps.
+安装、配置、验证方法和《Windows 工具使用守则》全文，见 [README.zh-CN.md](README.zh-CN.md)。
 
-## Thanks
+## 致谢
 
-This project derives from [xiaobright/dsh-anchored-standard](https://github.com/xiaobright/dsh-anchored-standard).
-Special thanks to [xiaobright](https://github.com/xiaobright) and all contributors for the anchored-standard idea, the reproducible V4 Pro experiments, the Windows `custom-bash` implementation, and the MIT-licensed code.
+本项目基于 [xiaobright/dsh-anchored-standard](https://github.com/xiaobright/dsh-anchored-standard) 制作。感谢原作者和该项目所有贡献者，以及 DeepSeek Harness 项目。
 
-## License
+## 许可
 
-MIT. See `LICENSE` and `NOTICE`.
+MIT。本项目不是 DeepSeek 官方项目，安装前请先查看源码。
