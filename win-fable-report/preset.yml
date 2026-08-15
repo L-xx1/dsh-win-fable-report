@@ -1,0 +1,7 @@
+name: Fable级且及时总结模式
+description: >-
+  基于 anchored-standard 的 Windows 工具调用增强模式：
+  首轮以 Minimal 双工具锚定 V4 Pro 正确推理轨迹；
+  晋升后保持 resident 小目录 + 按需解锁，并注入 Windows dsh 工具调用守则；
+  在重要遗漏、思路转折、突破或关键节点时及时总结汇报。
+order: 6

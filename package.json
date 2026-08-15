@@ -1,0 +1,15 @@
+{
+  "name": "dsh-win-fable-report",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Fable级且及时总结模式：基于 dsh-anchored-standard 的 Windows 工具调用增强 agent preset",
+  "type": "module",
+  "license": "MIT",
+  "engines": {
+    "node": ">=22.18.0"
+  },
+  "scripts": {
+    "test": "node --test \"test/*.test.mjs\" \"win-fable-report/test/*.test.mjs\"",
+    "check": "node --check win-fable-report/tool-bootstrap.mjs && node --check win-fable-report/custom-bash.mjs && node --check win-fable-report/compaction-epoch.mjs && node --check win-fable-report/dev-tool-search.mjs && node --check win-fable-report/skill-search.mjs && node --check win-fable-report/instruction-hint.mjs && node --check win-fable-report/win-tool-playbook.mjs && npm test"
+  }
+}
